@@ -1,0 +1,58 @@
+flowchart TB
+    subgraph USER["👥 User Interface"]
+        Discord["💬 Discord"]
+        Doplarr["🤖 Doplarr"]
+    end
+
+    subgraph REQUESTS["📋 Request Management"]
+        Overseerr["📋 Overseerr"]
+    end
+
+    subgraph AUTOMATION["⚙️ Media Automation"]
+        Radarr["🎬 Radarr\nMovies"]
+        Sonarr["📺 Sonarr\nTV Shows"]
+        Prowlarr["🔍 Prowlarr\nIndexers"]
+    end
+
+    subgraph DOWNLOAD["⬇️ Downloads"]
+        qBit["⬇️ qBittorrent"]
+        Indexers["🌐 Torrent Indexers\nIPTorrents, etc."]
+    end
+
+    subgraph STORAGE["📁 Storage"]
+        Downloads["/downloads"]
+        Movies["/movies"]
+        Shows["/shows"]
+    end
+
+    subgraph STREAMING["▶️ Streaming"]
+        Plex["▶️ Plex"]
+        Users["👨‍👩‍👧‍👦 Users"]
+    end
+
+    %% User Flow
+    Discord -->|"/movie or /tv"| Doplarr
+    Doplarr -->|"API Request"| Overseerr
+
+    %% Request Flow
+    Overseerr -->|"Movie Request"| Radarr
+    Overseerr -->|"TV Request"| Sonarr
+
+    %% Search Flow
+    Radarr -->|"Search"| Prowlarr
+    Sonarr -->|"Search"| Prowlarr
+    Prowlarr -->|"Query"| Indexers
+
+    %% Download Flow
+    Radarr -->|"Send Torrent"| qBit
+    Sonarr -->|"Send Torrent"| qBit
+    qBit -->|"Download"| Downloads
+
+    %% Import Flow
+    Downloads -.->|"Import"| Movies
+    Downloads -.->|"Import"| Shows
+
+    %% Streaming Flow
+    Movies -->|"Scan"| Plex
+    Shows -->|"Scan"| Plex
+    Plex -->|"Stream"| Users

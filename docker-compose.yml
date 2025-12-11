@@ -1,0 +1,126 @@
+services:
+
+  # ============================================================================
+  # PLEX - Media Server
+  # ============================================================================
+  plex:
+    image: linuxserver/plex:latest
+    container_name: plex
+    network_mode: host
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=${TZ:-America/Toronto}
+      - VERSION=docker
+      - PLEX_CLAIM=${PLEX_CLAIM:-}
+    volumes:
+      - ./config/plex:/config
+      - ./media/Movies:/movies
+      - ./media/Shows:/tv
+    restart: unless-stopped
+
+  # ============================================================================
+  # OVERSEERR - Request Management
+  # ============================================================================
+  overseerr:
+    image: linuxserver/overseerr:latest
+    container_name: overseerr
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=${TZ:-America/Toronto}
+    volumes:
+      - ./config/overseerr:/config
+    ports:
+      - 5055:5055
+    restart: unless-stopped
+
+  # ============================================================================
+  # RADARR - Movie Management
+  # ============================================================================
+  radarr:
+    image: linuxserver/radarr:latest
+    container_name: radarr
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=${TZ:-America/Toronto}
+    volumes:
+      - ./config/radarr:/config
+      - ./media:/data  # Parent mount for hardlinks
+    ports:
+      - 7878:7878
+    restart: unless-stopped
+
+  # ============================================================================
+  # SONARR - TV Show Management
+  # ============================================================================
+  sonarr:
+    image: linuxserver/sonarr:latest
+    container_name: sonarr
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=${TZ:-America/Toronto}
+    volumes:
+      - ./config/sonarr:/config
+      - ./media:/data  # Parent mount for hardlinks
+    ports:
+      - 8989:8989
+    restart: unless-stopped
+
+  # ============================================================================
+  # PROWLARR - Indexer Management
+  # ============================================================================
+  prowlarr:
+    image: linuxserver/prowlarr:latest
+    container_name: prowlarr
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=${TZ:-America/Toronto}
+    volumes:
+      - ./config/prowlarr:/config
+    ports:
+      - 9696:9696
+    restart: unless-stopped
+
+  # ============================================================================
+  # QBITTORRENT - Download Client
+  # ============================================================================
+  qbittorrent:
+    image: linuxserver/qbittorrent:latest
+    container_name: qbittorrent
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=${TZ:-America/Toronto}
+      - WEBUI_PORT=8080
+    volumes:
+      - ./config/qbittorrent:/config
+      - ./media/Downloads:/downloads
+    ports:
+      - 8080:8080
+      - 6881:6881
+      - 6881:6881/udp
+    restart: unless-stopped
+
+  # ============================================================================
+  # DOPLARR - Discord Bot
+  # ============================================================================
+  doplarr:
+    image: linuxserver/doplarr:latest
+    container_name: doplarr
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=${TZ:-America/Toronto}
+      - DISCORD__TOKEN=${DISCORD_TOKEN}
+      - OVERSEERR__URL=http://overseerr:5055
+      - OVERSEERR__API=${OVERSEERR_API}
+      - OVERSEERR__DEFAULT_ID=1
+    volumes:
+      - ./config/doplarr:/config
+    restart: unless-stopped
+    depends_on:
+      - overseerr
