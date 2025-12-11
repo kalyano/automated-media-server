@@ -2,7 +2,26 @@
 
 A complete, automated media server setup using Docker. Request movies and TV shows through Discord, and they automatically download and appear in Plex.
 
-![Architecture](docs/architecture.png)
+```mermaid
+flowchart LR
+    Discord["💬 Discord"] --> Doplarr["🤖 Doplarr"]
+    Doplarr --> Overseerr["📋 Overseerr"]
+    Overseerr --> Radarr["🎬 Radarr"]
+    Overseerr --> Sonarr["📺 Sonarr"]
+    Radarr --> Prowlarr["🔍 Prowlarr"]
+    Sonarr --> Prowlarr
+    Prowlarr --> Indexers["🌐 Indexers"]
+    Radarr --> qBit["⬇️ qBittorrent"]
+    Sonarr --> qBit
+    qBit --> Downloads["/downloads"]
+    Downloads -.-> Movies["/movies"]
+    Downloads -.-> Shows["/shows"]
+    Movies --> Plex["▶️ Plex"]
+    Shows --> Plex
+    Plex --> Users["👥 Users"]
+```
+
+> 💡 For an animated version of this diagram, paste the contents of [`docs/architecture.mermaid`](docs/architecture.mermaid) into [fanfa.dev](https://fanfa.dev)
 
 ## 📋 What's Included
 
